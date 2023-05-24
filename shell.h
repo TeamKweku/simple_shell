@@ -8,7 +8,11 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#define BUFSIZE 1024
+#define VAR_ERROR "variable does not exist\n"
+#define ARGS_ERROR "check the number of arguments passed\n"
 
+extern char **environ;
 
 /* String functions */
 int _strlen(const char *s);
@@ -20,6 +24,12 @@ int _strlen(const char *s);
 int _putchar(char c);
 void _puts(char *str);
 
+/* environment functions */
+void print_env(void);
+char **new_env(void);
+char *getenv_value(const char *str);
+int set_env_var(char **arguments, char **env);
+int unset_env_var(char **arguments, char **env);
 
 /* memory functions */
 void *_realloc(void *ptr, size_t old_size, size_t new_size);
