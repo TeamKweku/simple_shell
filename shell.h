@@ -36,6 +36,9 @@ void cd(char **argv, char **env);
 void free_memory(char **argv, char **env);
 void free_args(char **argv);
 
+/* environment functions */
+int set_env_var_val(char *var, char *value, char **environ);
+
 int non_interactive(char *command);
 
 #endif
