@@ -66,7 +66,7 @@ void cd(char **argv, char **env)
 	}
 	else
 	{
-		write(STDERR_FILENO, ERROR1, _strlen(ERROR1));
+		write(STDERR_FILENO, ARGS_ERROR, _strlen(ARGS_ERROR));
 		exit(EXIT_FAILURE);
 	}
 }
