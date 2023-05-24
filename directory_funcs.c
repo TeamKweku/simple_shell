@@ -34,7 +34,7 @@ int update_pwd(char **environ, char *curr_dir)
 
 void cd(char **argv, char **env)
 {
-	char curr_dir[BUFFSIZE], *dir = NULL;
+	char curr_dir[BUFSIZE], *dir = NULL;
 	int arg_count = 0;
 
 	while (argv[arg_count])
@@ -60,7 +60,7 @@ void cd(char **argv, char **env)
 			perror(argv[1]);
 		else
 		{
-			getcwd(curr_dir, BUFFSIZE);
+			getcwd(curr_dir, BUFSIZE);
 			update_pwd(env, curr_dir);
 		}
 	}
