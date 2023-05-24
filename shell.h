@@ -1,6 +1,7 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+#include <string.h>
 #include <sys/stat.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -30,6 +31,17 @@ char **new_env(void);
 char *getenv_value(const char *str);
 int set_env_var(char **arguments, char **env);
 int unset_env_var(char **arguments, char **env);
+
+/* path functions */
+char *find_path(char **arguments);
+ssize_t retrieve_line(char **line_buffer, size_t *s, FILE *stream);
+ssize_t retrieve_line1(char **p, char *b, char *j, char *end_buf, size_t *s);
+
+
+/* display prompt */
+void display_prompt(void);
+
+char *capture_user_input(void);
 
 /* memory functions */
 void *_realloc(void *ptr, size_t old_size, size_t new_size);
