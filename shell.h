@@ -16,5 +16,12 @@ char *_strcpy(char *dest, const char *src);
 int _strcmp(char *str1, const char *str2);
 char *_strdup(const char *str);
 char *_strcat(char *dest, const char *src);
+int _strlen(const char *s);
+int _putchar(char c);
+void _puts(char *str);
+
+
+/* memory functions */
+void *_realloc(void *ptr, size_t old_size, size_t new_size);
 
 #endif
