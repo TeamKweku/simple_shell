@@ -24,4 +24,8 @@ void _puts(char *str);
 /* memory functions */
 void *_realloc(void *ptr, size_t old_size, size_t new_size);
 
+/* execution functions */
+int handle_builtin_cmds(char **argv, char **env);
+void execute_cmds(char **argv);
+
 #endif
