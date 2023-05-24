@@ -22,6 +22,7 @@ void print_env(void)
  *
  * Return: the environment path.
  */
+char **new_env(void)
 {
 	char **environ_1 = NULL;
 	int i = 0, j = 0;
@@ -59,14 +60,14 @@ char *getenv_value(const char *str)
 		return (NULL);
 	while (env_var[index])
 	{
-		tokenized_env = _strdup(env_vars[index]);
+		tokenized_env = _strdup(env_var[index]);
 		token = strtok(tokenized_env, "=");
 
 		if (_strcmp(token, str) == 0)
 		{
 			token = strtok(NULL, "=");
 			value = _strdup(token);
-			frees1(env_vars);
+			free_args(env_var);
 			free(tokenized_env);
 
 			return (value);
@@ -75,7 +76,7 @@ char *getenv_value(const char *str)
 		free(tokenized_env);
 	}
 	free(value);
-	frees1(env_vars);
+	free_args(env_var);
 
 	return (NULL);
 }
