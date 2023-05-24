@@ -52,12 +52,12 @@ int handle_builtin_cmds(char **argv, char **env)
 {
 	if (_strcmp(argv[0], "setenv") == 0)
 	{
-		set_env_var(argv, env);
+		set_env(argv, env);
 		 frees1(argv);
 	}
 	else if (_strcmp(argv[0], "unsetenv") == 0)
 	{
-		unset_env_var(argv, env);
+		unset_env(argv, env);
 		 frees1(argv);
 	}
 	else if (_strcmp(argv[0], "cd") == 0)
