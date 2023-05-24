@@ -32,5 +32,10 @@ void execute_cmds(char **argv);
 int update_pwd(char **environ, char *curr_dir);
 void cd(char **argv, char **env);
 
+/* free utilities */
+void free_memory(char **argv, char **env);
+void free_args(char **argv);
+
+int non_interactive(char *command);
 
 #endif
