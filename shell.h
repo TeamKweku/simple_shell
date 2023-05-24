@@ -28,4 +28,9 @@ void *_realloc(void *ptr, size_t old_size, size_t new_size);
 int handle_builtin_cmds(char **argv, char **env);
 void execute_cmds(char **argv);
 
+/* directory functions */
+int update_pwd(char **environ, char *curr_dir);
+void cd(char **argv, char **env);
+
+
 #endif
