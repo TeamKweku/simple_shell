@@ -1,0 +1,20 @@
+#ifndef SHELL_H
+#define SHELL_H
+
+#include <sys/stat.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <sys/types.h>
+
+
+
+/* String functions */
+int _strlen(const char *s);
+char *_strcpy(char *dest, const char *src);
+int _strcmp(char *str1, const char *str2);
+char *_strdup(const char *str);
+char *_strcat(char *dest, const char *src);
+
+#endif
