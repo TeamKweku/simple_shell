@@ -66,4 +66,8 @@ int set_env_var_val(char *var, char *value, char **environ);
 
 int non_interactive(char *command);
 
+/* my getline function */
+void update_ptr(char **ptr, size_t *n, char *buf, size_t b);
+ssize_t my_getline(char **lineptr, size_t *s, FILE *stream);
+
 #endif

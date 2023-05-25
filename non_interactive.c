@@ -11,7 +11,7 @@ int non_interactive(char *command)
 	char **argv;
 	size_t buffer_size = 0;
 
-	while (getline(&command, &buffer_size, stdin) != -1)
+	while (my_getline(&command, &buffer_size, stdin) != -1)
 	{
 		argv = tokenizer(command, " \n");
 		if (!argv)
