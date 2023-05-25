@@ -46,7 +46,7 @@ char **new_env(void)
 
 /**
  * getenv_value - get the environment value.
- * @name: the name of the environment variable.
+ * @str: the name of the environment variable.
  *
  * Return: value of env.
  */
@@ -130,7 +130,13 @@ int set_env_var(char **arguments, char **env)
 	env[index + 1] = NULL;
 	return (1);
 }
-
+/**
+  * unset_env_var - function to unset an env value
+  * @arguments: arguments passed to function
+  * @env: environment values to unset
+  *
+  * Return: int value for success or error
+  */
 int unset_env_var(char **arguments, char **env)
 {
 	int i = 0, index = 0, y;
