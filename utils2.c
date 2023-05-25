@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * display_prompt - function displays prompt on terminal.
+ * display_input function displays prompt on terminal.
  *
  * Rerurn: void.
  */
