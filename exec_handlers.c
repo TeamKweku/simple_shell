@@ -1,78 +1,68 @@
 #include "shell.h"
-
 /**
-  * execute_cmds - function that executes a command specified
-  * by the argv
-  * @argv: arguments provided to funtion
-  *
-  * Return: nothing
-  */
+ * execute_cmds - function that produces the execution
+ * status based on path variable
+ * @cmd_path: specifies the location PATH
+ * @argv: input parameters
+ * @environ: environment variables
+ *
+ * Return: execution status
+ */
 
-void execute_cmds(char **argv)
+int execute_cmds(char *cmd_path, char **argv, char **environ)
+
 {
-	pid_t pid;
-	char *path;
-	int child_status, exec_status;
+	int pid, child_status;
 
-	path = find_path(argv);
-	if (!path)
-		perror("./hsh");
-	else
+	pid = fork();
+	if (pid == -1)
 	{
-		pid = fork();
-		if (pid == -1)
-			perror("error creating child process");
-		else if (pid == 0)
+		perror("fork");
+		return (-1);
+	}
+	else if (pid == 0)
+	{
+		if ((execve(cmd_path, argv, environ)) == -1)
 		{
-			exec_status = execve(path, argv, environ);
-			if (exec_status == -1)
-			{
-				free_args(argv);
-				exit(EXIT_FAILURE);
-			}
-
-			exit(EXIT_SUCCESS);
+			exit(1);
 		}
-		else
-			wait(&child_status);
-		if (!path)
-			free(path);
-	}
-	free_args(argv);
-}
-
-/**
-  * handle_builtin_cmds - function handles buitin commands based
-  * on the value of argv[0]
-  * @argv: arguments to be compared
-  * @env: environment variables
-  *
-  * Return: Success (1)
-  */
-int handle_builtin_cmds(char **argv, char **env)
-{
-	if (_strcmp(argv[0], "setenv") == 0)
-	{
-		set_env_var(argv, env);
-		 free_args(argv);
-	}
-	else if (_strcmp(argv[0], "unsetenv") == 0)
-	{
-		unset_env_var(argv, env);
-		 free_args(argv);
-	}
-	else if (_strcmp(argv[0], "cd") == 0)
-	{
-		cd(argv, env);
-		free_args(argv);
-	}
-	else if (_strcmp(argv[0], "env") == 0)
-	{
-		print_env();
-		free_args(argv);
+		exit(0);
 	}
 	else
-		execute_cmds(argv);
-	return (1);
+		wait(&child_status);
+	if (WIFEXITED(child_status))
+		return (WEXITSTATUS(child_status));
+
+	return (child_status);
 }
 
+
+/**
+ * handle_builtin_cmds - this function executes inbuilt functions
+ *
+ * @args: parameters that the func receives to run
+ * @builtin_exec: confirms if the func run or not
+ *
+ * Return: exit status
+ */
+
+int handle_builtin_cmds(char **args, int *builtin_exec)
+{
+	int exit_status = 0;
+
+	if (_strcmp(args[0], "cd") == 0)
+	{
+		exit_status = cd(args);
+		*builtin_exec = 1;
+		return (exit_status);
+	}
+
+	else if (_strcmp(args[0], "env") == 0)
+	{
+		exit_status = print_env();
+		*builtin_exec = 1;
+		return (exit_status);
+	}
+
+	return (exit_status);
+}

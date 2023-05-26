@@ -1,43 +1,52 @@
 #include "shell.h"
-
 /**
- * main - checks the working of the shell.
+ * main - entry point to the shell program
+ * @argc: number of argument being passed to progrm
+ * @argv: pointer to array of variables
+ * @env: environment variables
  *
- * Return: 0 on success.
+ * Return: int no.
  */
-int main(void)
-{
-	char *command = NULL, **arguments = NULL;
 
-	if (isatty(STDIN_FILENO))
+int main(int argc, char **argv, char **env)
+{
+	int path_match = 0, exit_status = 0;
+	char **args, **path_list, *executable;
+	int command_count = 0, exec_inbuilt = 0;
+
+	path_list = get_main_path();
+	(void)argc, (void)argv;
+	signal(SIGINT, signal_handler);
+	while (1)
 	{
-		while (1)
+		args = tokenizer(path_list, exit_status);
+		command_count++;
+		if (args[0] == NULL)
 		{
-			display_prompt();
-			command = capture_user_input();
-			if (command == NULL)
-				return (-1);
-			arguments = tokenizer(command, " \n");
-			if (arguments == NULL)
-			{
-				free(command);
-				return (-1);
-			}
-			if (_strcmp(arguments[0], "exit") == 0)
-			{
-				free(command);
-				free_args(arguments);
-				break;
-			}
-			handle_builtin_cmds(arguments, environ);
-			if (command && command[0] != '\n')
-				free(command);
+			free_args(args);
+			continue;
 		}
+		handle_exit(args[0], path_list, args, args[1], exit_status);
+		exit_status = handle_builtin_cmds(args, &exec_inbuilt);
+		if (exec_inbuilt == 1)
+		{
+			exec_inbuilt = 0;
+			free_args(args);
+			continue;
+		}
+		executable = find_exec(path_list, args[0], &path_match);
+		if (!executable)
+		{
+			exit_status = 1;
+			print_error_msgs(argv[0], command_count, args[0]);
+			free_args(args);
+			continue;
+		}
+		exit_status = execute_cmds(executable, args, env);
+		if (path_match == 1)
+			free(executable);
+		path_match = 0;
+		free_args(args);
 	}
-	else
-	{
-		command = NULL;
-		non_interactive(command);
-	}
-	return (0);
+	return (exit_status);
 }

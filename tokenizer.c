@@ -1,44 +1,53 @@
 #include "shell.h"
-
 /**
-  * tokenizer - function that tokenizes a string using a delim into
-  * a string of commands
-  * @string: string to be tokenized
-  * @delim: provided delimiters to use for tokenization
-  *
-  * Return: pointer to strings of commands
-  */
-char **tokenizer(char *string, char *delim)
+ * tokenizer - function that tokenizes a string
+ * @path: pointer to array of path to token from string string path
+ * @exit_status: exit status of old program
+ *
+ * Return: tokenized string
+ */
+
+char **tokenizer(char **path, int exit_status)
 {
-	int arg_count = 0;
-	int i;
-	char **argv = NULL;
-	char *str_cpy = NULL, *token = NULL;
+	char *input_line = NULL, **tokens, *token;
+	size_t n = 0;
+	int i = 0;
 
-	if (!string)
-		return (NULL);
-	str_cpy = _strdup(string);
-	if (!str_cpy)
-		return (NULL);
-	token = strtok(string, delim);
-	while (token)
+	if (isatty(STDIN_FILENO))
+		write(1, "$ ", 2);
+	if ((getline(&input_line, &n, stdin)) == -1)
 	{
-		token = strtok(NULL, delim);
-		arg_count++;
+		free(input_line);
+		free_args(path);
+		exit(exit_status);
 	}
-	argv = malloc(sizeof(char *) * (arg_count + 1));
-	if (!argv)
+	for (i = 0; input_line[i]; i++)
+	{
+		if (input_line[i] == '\n')
+			input_line[i] = '\0';
+	}
+	tokens = malloc(sizeof(char *) * (count_words(input_line) + 1));
+	if (!tokens)
+	{
+		perror("malloc");
 		return (NULL);
-	token = strtok(str_cpy, delim);
+	}
+	token = strtok(input_line, " ");
 	i = 0;
-	while (token)
+	while ((token != NULL) && !(_strcmp(token, "#") == 0))
 	{
-		argv[i] = _strdup(token);
-		token = strtok(NULL, delim);
-		i++;
+		tokens[i] = malloc(sizeof(char) * (_strlen(token) + 1));
+		if (tokens[i] == NULL)
+		{
+			perror("malloc");
+			return (NULL);
+		}
+		_strcpy(tokens[i++], token);
+		token = strtok(NULL, " ");
 	}
-	argv[arg_count] = NULL;
-	free(str_cpy);
+	tokens[i] = NULL;
 
-	return (argv);
+	free(input_line);
+	return (tokens);
 }
+

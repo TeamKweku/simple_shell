@@ -1,157 +1,153 @@
 #include "shell.h"
-
 /**
- * display_input function displays prompt on terminal.
+ * find_exec - function searches for executable files in the path
+ * @path_list: array of pointers to the path of exec file
+ * @filename: file to execute
+ * @found: pointer to variable keeping track of memory
  *
- * Rerurn: void.
+ * Return: pointer to filename or path
  */
-void display_prompt(void)
+
+char *find_exec(char **path_list, char *filename,  int *found)
 {
-	_puts("X-shell$ ");
-	fflush(stdout);
-}
+	int i;
+	char *path;
 
-/**
- * capture_user_input - function reads input.
- *
- * Return: the user input.
- */
-char *capture_user_input(void)
-{
-	size_t size = 0;
-	char *input = NULL, *cmd = NULL;
-
-	if (getline(&input, &size, stdin) == -1)
+	for (i = 0; path_list[i]; i++)
 	{
-		free(input);
-		return (NULL);
-	}
-	if (_strcmp(input, "\n") == 0)
-	{
-		free(input);
-		display_prompt();
-		return (capture_user_input());
-	}
-	cmd = _strdup(input);
-	if (input != NULL)
-		free(input);
-	return (cmd);
-}
-
-/**
- * find_path - executes new process
- * @arguments: the array of strings.
- *
- * Return: the path.
- */
-char *find_path(char **arguments)
-{
-	int length;
-	char *path = NULL, *token = NULL, *exe_path = NULL;
-	struct stat status;
-
-	if (stat(arguments[0], &status) == 0)
-	{
-		exe_path = _strdup(arguments[0]);
-		return (exe_path);
-	}
-	path = getenv_value("PATH");
-	if (path == NULL)
-		return (NULL);
-	token = strtok(path, ":");
-	while (token != NULL)
-	{
-		length = _strlen(arguments[0]) + _strlen(token) + 2;
-		exe_path = malloc(sizeof(char) * length);
-		if (exe_path == NULL)
-			return (NULL);
-		_strcpy(exe_path, token);
-		_strcat(exe_path, "/");
-		_strcat(exe_path, arguments[0]);
-		if (stat(exe_path, &status) == 0)
+		path = malloc(sizeof(char) * (_strlen(path_list[i]) +
+					_strlen(filename) + 2));
+		if (!path)
 		{
-			free(path);
-			return (exe_path);
+			perror("malloc");
+			return ("(null)");
 		}
-		free(exe_path);
-		token = strtok(NULL, ":");
+
+		path = _strcpy(path, path_list[i]);
+		path = _strcat(path, "/");
+		path = _strcat(path, filename);
+		if (access(path, F_OK) != -1)
+		{
+			*found = 1;
+			return (path);
+		}
+		free(path);
 	}
-	free(path);
+
+	if (access(filename, F_OK) != -1)
+		return (filename);
+
 	return (NULL);
 }
 
 /**
- * retrieve_line - function retrieves an entire line from a string.
- * @line_buffer: a pointer to the text from stream.
- * @s: number of bytes needed for buffer.
- * @stream: is either stdin, stdout, stderr.
- *
- * Return: number of characters read.
- */
-ssize_t retrieve_line(char **line_buffer, size_t *s, FILE *stream)
-{
-	ssize_t total_read_count;
-	char *buf, *temp_buf, *end_buf;
+  * get_paths - functions concatenates the path variable
+  *
+  * Return: pointer to array of path location
+  */
 
-	if (!line_buffer || !s || !stream)
-		return (-1);
-	fflush(stdout);
-	if (*line_buffer == NULL && *s == 0)
+char **get_paths(void)
+{
+	int count = 0, i;
+	char path_copy[PATH_SIZE];
+	char *path_var, *token, **path_list;
+
+	path_var = getenv_value();
+	_strcpy(path_copy, path_var);
+	for (i = 0; path_copy[i]; i++)
 	{
-		*s = 10;
-		buf = malloc(*s);
-		if (buf == NULL)
-			return (-1);
-		*line_buffer = buf;
+		if (path_copy[i] == ':')
+			count += 1;
 	}
-	else
-		buf = *line_buffer;
-	temp_buf = buf;
-	end_buf = buf + *s;
-	total_read_count = retrieve_line1(line_buffer, buf, temp_buf, end_buf, s);
-	return (total_read_count);
+	count += 1;
+
+	i = 0;
+	path_list = malloc(sizeof(char *) * (count + 1));
+	if (!path_list)
+	{
+		perror("malloc");
+		return (NULL);
+	}
+
+	token = strtok(path_copy, ":");
+	while (token != NULL)
+	{
+		path_list[i] = malloc(sizeof(char) * (_strlen(token) + 1));
+		if (path_list[i] == NULL)
+		{
+			perror("malloc");
+			return (NULL);
+		}
+
+		_strcpy(path_list[i++], token);
+		token = strtok(NULL, ":");
+	}
+	path_list[i] = NULL;
+
+	return (path_list);
+}
+
+
+/**
+ * get_main_path - functions get an array of main path
+ *
+ * Return: array of paths
+ */
+
+char **get_main_path(void)
+{
+	char **path_var;
+	int i, count = 0;
+	char **new_path;
+
+	path_var = get_paths();
+	for (i = 0; path_var[i]; i++)
+		count += 1;
+
+	new_path = malloc(sizeof(char *) * (count + 1));
+	if (!new_path)
+		return (NULL);
+
+	for (i = 0; path_var[i]; i++)
+	{
+		new_path[i] = malloc(sizeof(char) * (_strlen(path_var[i]) + 1));
+		_strcpy(new_path[i], path_var[i]);
+	}
+	new_path[i] = NULL;
+
+	free_args(path_var);
+	return (new_path);
 }
 
 /**
- * retrieve_line1 - function complements retrieve_line func.
- * @p: pointer to the stram text.
- * @b: the buffer.
- * @j: the temporary moving pointer.
- * @end_buf: a pointer to the end of the buffer.
- * @s: number of bytes to be allocated.
+ * count_words - counts number of words input
+ * @str: input string to count words
  *
- * Return: number of characters read.
+ * Return: no of words
  */
-ssize_t retrieve_line1(char **p, char *b, char *j, char *end_buf, size_t *s)
-{
-	ssize_t read_count = 1, total_read_count = 0;
-	size_t new_buffer_size;
-	char *new_buffer;
 
-	while (read_count != 0)
+int count_words(char *str)
+{
+	int word_count = 0;
+	int len = _strlen(str);
+	int i = 0;
+
+	if (_strcmp(str, "") == 0)
+		return (0);
+	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
+		i++;
+	while (i < len)
 	{
-		read_count = read(STDIN_FILENO, j, 1);
-		if (read_count == -1)
-			return (-1);
-		total_read_count += read_count;
-		if (*j == '\n')
-			break;
-		if (j == end_buf)
+		if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
 		{
-			new_buffer_size = *s * 2;
-			new_buffer = _realloc(b, *s, new_buffer_size);
-			if (new_buffer == NULL)
-				return (-1);
-			b = new_buffer;
-			*p = b;
-			j = b + *s - 1;
-			end_buf = b + new_buffer_size;
-			*s = new_buffer_size;
+			word_count++;
+			while (str[i] == ' ' || str[i] == '\t' || str[i] == '\n')
+				i++;
 		}
-		j++;
+		else
+			i++;
 	}
-	j++;
-	*j = '\0';
-	*p = b;
-	return (total_read_count);
+	if (str[len - 1] != ' ' && str[len - 1] != '\t' && str[len - 1] != '\n')
+		word_count++;
+	return (word_count);
 }

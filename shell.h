@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#define BUFSIZE 1024
+
+#define PATH_SIZE 2024
+#define BUFFSIZE 1024
 #define VAR_ERROR "variable does not exist\n"
 #define ARGS_ERROR "check the number of arguments passed\n"
 
@@ -22,20 +24,15 @@ int _strcmp(char *str1, const char *str2);
 char *_strdup(const char *str);
 char *_strcat(char *dest, const char *src);
 int _strlen(const char *s);
-int _putchar(char c);
-void _puts(char *str);
+
+int count_words(char *str);
 
 /* environment functions */
-void print_env(void);
-char **new_env(void);
-char *getenv_value(const char *str);
-int set_env_var(char **arguments, char **env);
-int unset_env_var(char **arguments, char **env);
+int print_env(void);
+char *getenv_value(void);
 
 /* path functions */
 char *find_path(char **arguments);
-ssize_t retrieve_line(char **line_buffer, size_t *s, FILE *stream);
-ssize_t retrieve_line1(char **p, char *b, char *j, char *end_buf, size_t *s);
 
 
 /* display prompt */
@@ -43,31 +40,35 @@ void display_prompt(void);
 
 char *capture_user_input(void);
 
+/* print error */
+void print_error_msgs(char *shell, int exit_status, char *prog);
+
 /* memory functions */
 void *_realloc(void *ptr, size_t old_size, size_t new_size);
 
 /* execution functions */
-int handle_builtin_cmds(char **argv, char **env);
-void execute_cmds(char **argv);
+int handle_builtin_cmds(char **args, int *builtin_exec);
+int execute_cmds(char *cmd_path, char **argv, char **environ);
+char *find_exec(char **path_list, char *filename,  int *found);
+char **get_paths(void);
+char **get_main_path(void);
+
 
 /* directory functions */
-int update_pwd(char **environ, char *curr_dir);
-void cd(char **argv, char **env);
+int cd(char **arr);
 
 /* string tokenizer function */
-char **tokenizer(char *string, char *delim);
+char **tokenizer(char **path, int exit_status);
 
 /* free utilities */
 void free_memory(char **argv, char **env);
 void free_args(char **argv);
 
 /* environment functions */
-int set_env_var_val(char *var, char *value, char **environ);
+int print_env(void);
+char *getenv_value();
 
-int non_interactive(char *command);
+void handle_exit(char *command, char **path_list, char **args, char *exit_status, int code);
 
-/* my getline function */
-void update_ptr(char **ptr, size_t *n, char *buf, size_t b);
-ssize_t my_getline(char **lineptr, size_t *s, FILE *stream);
-
+void signal_handler(int signum);
 #endif
