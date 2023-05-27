@@ -68,7 +68,7 @@ void free_args(char **argv);
 int print_env(void);
 char *getenv_value();
 
-void handle_exit(char *command, char **path_list, char **args, char *exit_status, int code);
+void handle_exit(char *, char **, char **, char *, int);
 
 void signal_handler(int signum);
 #endif
